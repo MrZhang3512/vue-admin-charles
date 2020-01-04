@@ -107,22 +107,30 @@ export default {
         closeModalHande(){
             this.visible=false;
         },
-        toDeleteHandler(id){
-            //确认
+         toDeleteHandler(id){
+               //确认
              this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '删除成功!'+id
-          });
-        })
+            let url="http://localhost:6677/waiter/deleteById?id="+id;
+            request.get(url).then((response)=>{
+                //刷新sju 
+                 this.$message({
+                type: 'success',
+                message: '删除成功!'+id
+            });
+            this.loadData();
+            });
+           
+            })
         },
         toUpdateHandler(row){
-            this.title="修改员工信息";
-               this.visible=true;
+                this.title="修改员工信息";
+                this.form=row;
+                this.visible=true;
+               
         },
         closeModalHander(){
             this.visible=false;

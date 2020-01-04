@@ -15,7 +15,7 @@
         <el-table-column label="操作" >
              <template v-slot="slot">
                     <a href="" @click.prevent="todeleteHandler(slot.row.id)">删除</a>
-                    <a href="" @click.prevent="toupdateHandler">修改</a>
+                    <a href="" @click.prevent="toupdateHandler(slot.row)">修改</a>
                 </template>
         </el-table-column>
     </el-table>
@@ -47,15 +47,15 @@
              </el-form-item>
              <el-form-item label="所属栏目">
                   <template>
-  <el-select v-model="form.status" placeholder="请选择">
-    <el-option
-      v-for="item in options"
-      :key="item.value"
-      :label="item.name"
-      :value="item.parentId">
-    </el-option>
-  </el-select>
-</template>
+            <el-select v-model="form.categoryId" placeholder="请选择">
+                <el-option
+                v-for="item in options"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id">
+                </el-option>
+            </el-select>
+            </template>
              </el-form-item>
          </el-form>
          {{form}}
@@ -81,17 +81,25 @@ export default {
     },
     created(){
         this.loadData();
+        this.loadCategory();
     },
     methods:{
+        toupdateHandler(row){
+            this.form=row;
+            this.visible=true;
+        },
+        loadCategory(){
+            let url1="http://localhost:6677/category/findAll";
+            request.get(url1).then((response)=>{
+                this.options=response.data;
+            });
+        },
         loadData(){
             let url="http://localhost:6677/product/findAll";
             request.get(url).then((response)=>{
                 this.products=response.data;
             });
-            let url1="http://localhost:6677/category/findAll";
-            request.get(url1).then((response)=>{
-                this.options=response.data;
-            });
+            
         },
         closeModalHander(){
             this.visible=false;
@@ -122,10 +130,15 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$message({
-            type: 'success',
-            message: '删除成功!'+id
-          });
+           let url="http://localhost:6677/product/deleteById?id="+id;
+            request.get(url).then((response)=>{
+                //刷新sju 
+                 this.$message({
+                type: 'success',
+                message: '删除成功!'+id
+            });
+            this.loadData();
+            });
         })
         }
 
